@@ -1,6 +1,6 @@
 question text,question search text,question image,answer1 text,answer1 search text,answer1 image,answer1 is_right,answer2 text,answer2 search text,answer2 image,answer2 is_right,answer3 text,answer3 search text,answer3 image,answer3 is_right,answer4 text,answer4 search text,answer4 image,answer4 is_right,answer5 text,answer5 search text,answer5 image,answer5 is_right
-What is the capital of France?,what is the capital of france,,Paris,paris,,true,Lyon,lyon,,,Marseille,marseille,,,Nice,nice,,,Toulouse,toulouse,,
+What is the capital of France?,what is the capital of france,react.svg,Paris,paris,,true,Lyon,lyon,,,Marseille,marseille,,,Nice,nice,,,Toulouse,toulouse,,
 Which planet is known as the Red Planet?,which planet is known as the red planet,,Mars,mars,,true,Venus,venus,,,Jupiter,jupiter,,,Saturn,saturn,,,Earth,earth,,
-What is 2 + 2?,what is 2 plus 2,,4,4,,true,5,5,,,,,,,,,,,,,
+What is 2 + 2?,what is 2 plus 2,,4,4,,true,5,5,,,,,,,,,,,,,,
 What are the primary colors?,what are the primary colors,,Red,red,,true,Blue,blue,,true,Green,green,,true,Yellow,yellow,,,Orange,orange,,
 Who wrote 'Romeo and Juliet'?,who wrote romeo and juliet,,William Shakespeare,william shakespeare,,true,Charles Dickens,charles dickens,,,Mark Twain,mark twain,,,Jane Austen,jane austen,,,Leo Tolstoy,leo tolstoy,,

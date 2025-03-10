@@ -8,6 +8,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.concurrent.ConcurrentException;
+import org.apache.commons.lang3.concurrent.LazyInitializer;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 public class Util {
 
@@ -46,5 +52,32 @@ public class Util {
             questions.add(new Question(questionText, questionSearchText, questionImage, answers, true));
         }
         return questions;
+    }
+
+    private static final LazyInitializer<TemplateEngine> questionViewTemplateEngineInitializer = new LazyInitializer<
+        TemplateEngine
+    >() {
+        @Override
+        protected TemplateEngine initialize() {
+            final TemplateEngine templateEngine = new TemplateEngine();
+            final ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
+            resolver.setPrefix("/templates/");
+            resolver.setSuffix(".html");
+            resolver.setCharacterEncoding("UTF-8");
+            resolver.setTemplateMode(TemplateMode.HTML);
+            templateEngine.setTemplateResolver(resolver);
+            return templateEngine;
+        }
+    };
+
+    public static String generateQuestionHtml(Question question) {
+        Context context = new Context();
+        context.setVariable("question", question);
+        try {
+            return questionViewTemplateEngineInitializer.get().process("question-view", context);
+        } catch (ConcurrentException e) {
+            e.printStackTrace();
+            return "";
+        }
     }
 }

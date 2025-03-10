@@ -16,8 +16,6 @@ public final class App {
      */
     public static void main(String[] args) {
         System.out.println("Hello World!");
-        var test = Util.readCsvToQuestions("./questions.csv", true);
-        System.out.println(test);
         SwingUtilities.invokeLater(
             new Runnable() {
                 @Override

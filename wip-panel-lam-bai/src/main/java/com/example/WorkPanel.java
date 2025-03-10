@@ -10,14 +10,25 @@ import javax.swing.JPanel;
 
 public class WorkPanel extends JPanel {
 
+    private WorkAreaPanel workAreaPanel;
+
     public WorkPanel() {
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(new WorkInfoPanel());
-        add(new WorkAreaPanel());
+        add(workAreaPanel = new WorkAreaPanel());
         add(new WorkControlPanel());
+
+        // TODO: tam thoi view question 1 de test truoc
+        var qList = Util.readCsvToQuestions("./questions.csv", true);
+        var tTest = new TheTest();
+        tTest.setQuestions(qList);
+        initializeTheTest(tTest);
     }
 
-    public void initializeTheTest(TheTest theTest) {}
+    public void initializeTheTest(TheTest theTest) {
+        // TODO: tam thoi view question 1 de test truoc
+        workAreaPanel.setViewQuestion(theTest.getQuestions().get(0));
+    }
 }
 
 class WorkInfoPanel extends JPanel {
@@ -30,10 +41,16 @@ class WorkInfoPanel extends JPanel {
 
 class WorkAreaPanel extends JPanel {
 
+    private WebViewPanel webViewPanel;
+
     public WorkAreaPanel() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(new JLabel("Panel 2"));
-        add(new WebViewPanel());
+        add(webViewPanel = new WebViewPanel());
+    }
+
+    public void setViewQuestion(Question question) {
+        webViewPanel.setViewContent(Util.generateQuestionHtml(question));
     }
 }
 
@@ -62,7 +79,7 @@ class WebViewPanel extends JPanel {
         });
     }
 
-    public void setContent(String content) {
+    public void setViewContent(String content) {
         Platform.runLater(() -> webView.getEngine().loadContent(content));
     }
 }

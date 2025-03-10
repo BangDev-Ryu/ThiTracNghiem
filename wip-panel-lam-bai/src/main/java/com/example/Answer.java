@@ -1,19 +1,32 @@
 package com.example;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.apache.commons.lang3.StringUtils;
+
 public class Answer {
 
     private String text;
     private String searchText;
-    private String image;
+    private Path image;
     private boolean isRight;
     private boolean status;
+    private String imageUri;
 
     public Answer() {}
 
     public Answer(String text, String searchText, String image, boolean isRight, boolean status) {
         this.text = text;
         this.searchText = searchText;
-        this.image = image;
+        setImage(image);
+        this.isRight = isRight;
+        this.status = status;
+    }
+
+    public Answer(String text, String searchText, Path image, boolean isRight, boolean status) {
+        this.text = text;
+        this.searchText = searchText;
+        setImage(image);
         this.isRight = isRight;
         this.status = status;
     }
@@ -34,12 +47,27 @@ public class Answer {
         this.searchText = searchText;
     }
 
-    public String getImage() {
+    public Path getImage() {
         return image;
     }
 
     public void setImage(String image) {
+        if (StringUtils.isBlank(image)) {
+            this.image = null;
+            this.imageUri = null;
+        } else {
+            this.image = Paths.get(image);
+            this.imageUri = this.image.toUri().toString();
+        }
+    }
+
+    public void setImage(Path image) {
         this.image = image;
+        if (image == null) {
+            this.imageUri = null;
+        } else {
+            this.imageUri = image.toUri().toString();
+        }
     }
 
     public boolean isRight() {
@@ -56,5 +84,9 @@ public class Answer {
 
     public void setStatus(boolean status) {
         this.status = status;
+    }
+
+    public String getImageUri() {
+        return imageUri;
     }
 }

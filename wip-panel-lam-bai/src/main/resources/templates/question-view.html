@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Quiz Question</title>
+  </head>
+  <body>
+    <div>
+      <h2 th:text="${question.text}">Question Text</h2>
+      <div th:if="${question.image != null}">
+        <img th:src="@{${question.imageUri}}" alt="Question Image" />
+      </div>
+      <p
+        th:text="${question.isMultipleChoices() ? 'Multiple Choice' : 'Single Choice'}"
+      ></p>
+      <ul>
+        <li th:each="answer, iterStat : ${question.answers}">
+          <span
+            th:text="${question.getExcelColumnName(iterStat.index) + '. '}"
+          ></span>
+          <span th:text="${answer.text}">Answer Text</span>
+          <div th:if="${answer.image != null}">
+            <img th:src="@{${answer.imageUri}}" alt="Answer Image" />
+          </div>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
