@@ -76,10 +76,10 @@ public class MainGUI extends JFrame implements MouseListener {
     public void changeContent(SideBarItem item) {
         switch (item.getItemName()) {
             case "Home":
-                content.removeAll();
+//                content.removeAll();
 //                content.add();
-                content.repaint();
-                content.validate();
+//                content.repaint();
+//                content.validate();
                 break;
             case "Đề thi":
                 break;
