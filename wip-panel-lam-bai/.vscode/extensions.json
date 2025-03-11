@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "vscjava.vscode-java-pack",
+        "rudrapatel.prettier-plugin-java-vscode",
+        "esbenp.prettier-vscode",
+        "franneck94.workspace-formatter",
+        "jbockle.jbockle-format-files"
+    ]
+}
