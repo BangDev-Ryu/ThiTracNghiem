@@ -3,7 +3,7 @@ package DAL;
 import java.sql.*;
 
 public class ConnectDB {
-    private static final String URL = "jdbc:mysql://localhost:3306/thitracnghiem";
+    private static final String URL = "jdbc:mysql://localhost:3306/tracnghiem";
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
