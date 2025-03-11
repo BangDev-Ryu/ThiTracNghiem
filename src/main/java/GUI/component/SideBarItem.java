@@ -38,11 +38,11 @@ public class SideBarItem extends JPanel implements MouseListener {
         this.setBackground(this.colorNormal);
         
         // khoi tao icon va label
-        icon = new JLabel("");
+        FlatSVGIcon svgIcon = new FlatSVGIcon("svg/" + itemIcon);
+        icon = new JLabel("", svgIcon, JLabel.CENTER);
         label = new JLabel(this.itemName);
         
-        icon.setIcon(new FlatSVGIcon(getClass().getClassLoader().getResource("svg/" + itemIcon)));
-
+        icon.setBounds(0, 0, 50, 50);
         
         // thiet ke label
         this.label.setBounds(60, 0, 150, 50);
