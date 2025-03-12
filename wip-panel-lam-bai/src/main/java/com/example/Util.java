@@ -1,19 +1,21 @@
 package com.example;
 
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.concurrent.ConcurrentException;
 import org.apache.commons.lang3.concurrent.LazyInitializer;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 
 public class Util {
 
@@ -39,7 +41,7 @@ public class Util {
             String questionSearchText = row.get(1);
             String questionImage = row.get(2);
             List<Answer> answers = new ArrayList<>();
-            for (int i = 3; i < row.size(); i += 4) {
+            for (int i = 3, order = 0; i < row.size(); i += 4, order++) {
                 if (i >= row.size() || row.get(i).isEmpty()) {
                     break;
                 }
@@ -47,7 +49,7 @@ public class Util {
                 String answerSearchText = row.get(i + 1);
                 String answerImage = row.get(i + 2);
                 boolean isRight = Boolean.parseBoolean(row.get(i + 3));
-                answers.add(new Answer(answerText, answerSearchText, answerImage, isRight, true));
+                answers.add(new Answer(answerText, answerSearchText, answerImage, isRight, order, true));
             }
             questions.add(new Question(questionText, questionSearchText, questionImage, answers, true));
         }
@@ -79,5 +81,20 @@ public class Util {
             e.printStackTrace();
             return "";
         }
+    }
+
+    // https://learn.microsoft.com/en-us/office/troubleshoot/excel/convert-excel-column-numbers
+    public static String getExcelColumnName(int index) {
+        if (index < 0) {
+            return "#VALUE!";
+        }
+        StringBuilder result = new StringBuilder();
+        index++;
+        while (index > 0) {
+            int remainder = (index - 1) % 26;
+            result.insert(0, (char) (remainder + 'A'));
+            index = (index - 1) / 26;
+        }
+        return result.toString();
     }
 }

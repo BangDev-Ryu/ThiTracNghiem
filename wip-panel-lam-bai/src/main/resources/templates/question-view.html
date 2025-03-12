@@ -13,10 +13,8 @@
         th:text="${question.isMultipleChoices() ? 'Multiple Choice' : 'Single Choice'}"
       ></p>
       <ul>
-        <li th:each="answer, iterStat : ${question.answers}">
-          <span
-            th:text="${question.getExcelColumnName(iterStat.index) + '. '}"
-          ></span>
+        <li th:each="answer : ${question.answers}">
+          <span th:text="${answer.getExcelColumnName() + '. '}"></span>
           <span th:text="${answer.text}">Answer Text</span>
           <div th:if="${answer.image != null}">
             <img th:src="@{${answer.imageUri}}" alt="Answer Image" />
