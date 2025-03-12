@@ -3,7 +3,6 @@ package com.example;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 
 public class Question {

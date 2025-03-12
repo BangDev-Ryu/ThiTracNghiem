@@ -1,21 +1,19 @@
 package com.example;
 
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.concurrent.ConcurrentException;
 import org.apache.commons.lang3.concurrent.LazyInitializer;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
-
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
 
 public class Util {
 
@@ -72,9 +70,10 @@ public class Util {
         }
     };
 
-    public static String generateQuestionHtml(Question question) {
+    public static String generateQuestionHtml(Question question, int order) {
         Context context = new Context();
         context.setVariable("question", question);
+        context.setVariable("order", order);
         try {
             return questionViewTemplateEngineInitializer.get().process("question-view", context);
         } catch (ConcurrentException e) {

@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -23,6 +24,7 @@ import javax.swing.ListSelectionModel;
 public class WorkPanel extends JPanel {
 
     private TheTest theTest;
+    private List<QuestionInWork> questions;
 
     private WorkAreaPanel workAreaPanel;
     private WorkInfoPanel workInfoPanel;
@@ -40,16 +42,22 @@ public class WorkPanel extends JPanel {
         initializeTheTest(tTest);
     }
 
-    public void initializeTheTest(TheTest theTest) {
+    public synchronized void initializeTheTest(TheTest theTest) {
         this.theTest = theTest;
-        // TODO: tam thoi view question 1 de test truoc
-        workAreaPanel.setViewQuestion(theTest.getQuestions().get(0));
+        questions = IntStream.range(0, theTest.getQuestions().size())
+            .mapToObj(index -> new QuestionInWork(theTest.getQuestions().get(index), index))
+            .collect(Collectors.toList());
         // TODO: can phai xac dinh duoc thu tu cau hoi
-        workInfoPanel.setQuestions(
-            IntStream.range(0, theTest.getQuestions().size())
-                .mapToObj(index -> new QuestionInWork(theTest.getQuestions().get(index), index))
-                .collect(Collectors.toList())
-        );
+        workInfoPanel.setQuestions(questions);
+        workInfoPanel.addNavigationFocusChangeListener(this::showQuestion);
+        // TODO: tam thoi view question 1 de test truoc
+        workAreaPanel.setViewQuestion(questions.get(0));
+    }
+
+    // chuyen sang cau hoi n, co the dc goi boi navigation hoac nut next
+    public void showQuestion(QuestionInWork question) {
+        workInfoPanel.setFocusedQuestion(question);
+        workAreaPanel.setViewQuestion(question);
     }
 
     public TheTest getTheTest() {
@@ -61,6 +69,8 @@ class WorkInfoPanel extends JPanel {
 
     private DefaultListModel<QuestionInWork> navigationModel = new DefaultListModel<>();
     private JList<QuestionInWork> navigationComponent;
+
+    private AtomicBoolean isNavigationChangeByUser = new AtomicBoolean(true);
 
     public WorkInfoPanel() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -105,22 +115,24 @@ class WorkInfoPanel extends JPanel {
     }
 
     // phai sort truoc, vi order se duoc lay de danh so thu tu
-    public void setQuestions(List<QuestionInWork> questions) {
+    public synchronized void setQuestions(List<QuestionInWork> questions) {
         if (navigationModel != null) {
             navigationModel.clear();
         }
         // Sort questions by order and add to model
+        isNavigationChangeByUser.set(false);
         navigationModel.addAll(
             questions.stream().sorted(Comparator.comparingInt(QuestionInWork::getOrder)).collect(Collectors.toList())
         );
         navigationComponent.setSelectedIndex(0);
+        isNavigationChangeByUser.set(true);
     }
 
     // dung de lang nghe su kien user chon cau hoi khac tren navigation
     // TODO: xai cai nay de doi cau hoi o panel giua
-    public void addNavigationChangeListener(Consumer<QuestionInWork> listener) {
+    public void addNavigationFocusChangeListener(Consumer<QuestionInWork> listener) {
         navigationComponent.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
+            if (!e.getValueIsAdjusting() && isNavigationChangeByUser.get()) {
                 int selectedIndex = navigationComponent.getSelectedIndex();
                 if (selectedIndex != -1) {
                     QuestionInWork selectedQuestion = navigationModel.getElementAt(selectedIndex);
@@ -128,6 +140,17 @@ class WorkInfoPanel extends JPanel {
                 }
             }
         });
+    }
+
+    // NavigationChangeListener se dc goi nen can check xem phai user click ko
+    public synchronized void setFocusedQuestion(QuestionInWork question) {
+        // deselct current
+        navigationComponent.getSelectedValue().setFocused(false);
+        question.setFocused(true);
+        // select, default refer to the same object (x == y has the value true).
+        isNavigationChangeByUser.set(false);
+        navigationComponent.setSelectedValue(question, true);
+        isNavigationChangeByUser.set(true);
     }
 }
 
@@ -141,8 +164,8 @@ class WorkAreaPanel extends JPanel {
         add(webViewPanel = new WebViewPanel());
     }
 
-    public void setViewQuestion(Question question) {
-        webViewPanel.setViewContent(Util.generateQuestionHtml(question));
+    public void setViewQuestion(QuestionInWork question) {
+        webViewPanel.setViewContent(Util.generateQuestionHtml(question.getQuestion(), question.getOrder()));
     }
 }
 
