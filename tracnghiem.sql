@@ -9,12 +9,12 @@ CREATE TABLE `test` (
 );
 
 CREATE TABLE `test_structure` (
-  `test_code` varchar(255),
+  `test_id` int,
   `topic_id` int,
   `num_easy` int,
   `num_medium` int,
   `num_hard` int,
-  PRIMARY KEY (`test_code`, `topic_id`)
+  PRIMARY KEY (`test_id`, `topic_id`)
 );
 
 CREATE TABLE `question` (
@@ -43,28 +43,32 @@ CREATE TABLE `topic` (
 );
 
 CREATE TABLE `exam` (
+  `test_id` int,
   `test_code` varchar(255),
   `ex_order` varchar(255),
   `ex_code` varchar(255),
-  PRIMARY KEY (`test_code`, `ex_order`)
+  PRIMARY KEY (`test_id`, `ex_order`)
 );
 
 CREATE TABLE `exam_detail` (
-  `ex_code` varchar(255),
-  `question_id` int
+  `test_id` int,
+  `question_id` int,
+  PRIMARY KEY (`test_id`, `question_id`)
 );
 
 CREATE TABLE `result` (
-  `id` int PRIMARY KEY,
+  `id` int,
   `user_id` int,
-  `ex_code` varchar(255),
+  `test_id` int,
   `mark` decimal,
-  `date` datetime
+  `date` datetime,
+  PRIMARY KEY (`id`, `user_id`, `test_id`)
 );
 
 CREATE TABLE `result_detail` (
-  `id` int PRIMARY KEY,
-  `answer_id` int
+  `id` int,
+  `answer_id` int,
+  PRIMARY KEY (`id`, `answer_id`)
 );
 
 CREATE TABLE `user` (
@@ -76,42 +80,24 @@ CREATE TABLE `user` (
   `id_admin` tinyint
 );
 
-ALTER TABLE `test_structure` ADD FOREIGN KEY (`test_code`) REFERENCES `test` (`test_code`);
+ALTER TABLE `test_structure` ADD FOREIGN KEY (`test_id`) REFERENCES `test` (`id`);
 
-ALTER TABLE `topic` ADD FOREIGN KEY (`id`) REFERENCES `test_structure` (`topic_id`);
+ALTER TABLE `test_structure` ADD FOREIGN KEY (`topic_id`) REFERENCES `topic` (`id`);
 
 ALTER TABLE `question` ADD FOREIGN KEY (`topic_id`) REFERENCES `topic` (`id`);
 
-ALTER TABLE `answer` ADD FOREIGN KEY (`id`) REFERENCES `question` (`id`);
+ALTER TABLE `answer` ADD FOREIGN KEY (`question_id`) REFERENCES `question` (`id`);
 
-ALTER TABLE `exam` ADD FOREIGN KEY (`test_code`) REFERENCES `test` (`test_code`);
-
-ALTER TABLE `exam_detail` ADD FOREIGN KEY (`ex_code`) REFERENCES `exam` (`ex_code`);
-
-CREATE TABLE `exam_detail_question` (
-  `exam_detail_question_id` int,
-  `question_id` int,
-  PRIMARY KEY (`exam_detail_question_id`, `question_id`)
-);
-
-ALTER TABLE `exam_detail_question` ADD FOREIGN KEY (`exam_detail_question_id`) REFERENCES `exam_detail` (`question_id`);
-
-ALTER TABLE `exam_detail_question` ADD FOREIGN KEY (`question_id`) REFERENCES `question` (`id`);
-
-
-ALTER TABLE `result` ADD FOREIGN KEY (`id`) REFERENCES `exam` (`ex_code`);
+ALTER TABLE `exam_detail` ADD FOREIGN KEY (`question_id`) REFERENCES `question` (`id`);
 
 ALTER TABLE `result` ADD FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 
 ALTER TABLE `result_detail` ADD FOREIGN KEY (`id`) REFERENCES `result` (`id`);
 
-CREATE TABLE `result_detail_answer` (
-  `result_detail_answer_id` int,
-  `answer_id` int,
-  PRIMARY KEY (`result_detail_answer_id`, `answer_id`)
-);
+ALTER TABLE `result_detail` ADD FOREIGN KEY (`answer_id`) REFERENCES `answer` (`id`);
 
-ALTER TABLE `result_detail_answer` ADD FOREIGN KEY (`result_detail_answer_id`) REFERENCES `result_detail` (`answer_id`);
+ALTER TABLE `exam` ADD FOREIGN KEY (`test_id`) REFERENCES `test` (`id`);
 
-ALTER TABLE `result_detail_answer` ADD FOREIGN KEY (`answer_id`) REFERENCES `answer` (`id`);
+ALTER TABLE `exam_detail` ADD FOREIGN KEY (`test_id`) REFERENCES `exam` (`test_id`);
 
+ALTER TABLE `result` ADD FOREIGN KEY (`test_id`) REFERENCES `exam` (`test_id`);
