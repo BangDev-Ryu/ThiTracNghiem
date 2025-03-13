@@ -59,6 +59,7 @@ public class TestGUI extends JPanel {
         }, 0);
         table = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(900, 250));
         
         pn_table.add(scrollPane);
         

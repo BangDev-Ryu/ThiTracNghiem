@@ -52,9 +52,9 @@ public class MainGUI extends JFrame implements MouseListener {
         int width_item = 200, height_item = 50;
         
         itemNames.add("Home:home.svg");
-        itemNames.add("Test:home-black.svg");
-        itemNames.add("Câu hỏi:home.svg");
-        itemNames.add("Tài khoản:home.svg");
+        itemNames.add("Đề thi:test.svg");
+        itemNames.add("Câu hỏi:quiz.svg");
+        itemNames.add("Tài khoản:group.svg");
         
         for (int i = 0; i < itemNames.size(); i++) {
             String[] parts = itemNames.get(i).split(":");
@@ -79,7 +79,7 @@ public class MainGUI extends JFrame implements MouseListener {
                 content.repaint();
                 content.validate();
                 break;
-            case "Test":
+            case "Đề thi":
                 content.removeAll();
                 content.add(new TestGUI(WIDTH - SIDEBARWIDTH, HEIGHT));
                 content.repaint();
