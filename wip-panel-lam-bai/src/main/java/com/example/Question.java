@@ -87,19 +87,4 @@ public class Question {
     public void setStatus(boolean status) {
         this.status = status;
     }
-
-    // https://learn.microsoft.com/en-us/office/troubleshoot/excel/convert-excel-column-numbers
-    public static String getExcelColumnName(int index) {
-        if (index < 0) {
-            return "#VALUE!";
-        }
-        StringBuilder result = new StringBuilder();
-        index++;
-        while (index > 0) {
-            int remainder = (index - 1) % 26;
-            result.insert(0, (char) (remainder + 'A'));
-            index = (index - 1) / 26;
-        }
-        return result.toString();
-    }
 }

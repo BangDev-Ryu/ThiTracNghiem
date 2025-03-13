@@ -39,7 +39,7 @@ public class Util {
             String questionSearchText = row.get(1);
             String questionImage = row.get(2);
             List<Answer> answers = new ArrayList<>();
-            for (int i = 3; i < row.size(); i += 4) {
+            for (int i = 3, order = 0; i < row.size(); i += 4, order++) {
                 if (i >= row.size() || row.get(i).isEmpty()) {
                     break;
                 }
@@ -47,7 +47,7 @@ public class Util {
                 String answerSearchText = row.get(i + 1);
                 String answerImage = row.get(i + 2);
                 boolean isRight = Boolean.parseBoolean(row.get(i + 3));
-                answers.add(new Answer(answerText, answerSearchText, answerImage, isRight, true));
+                answers.add(new Answer(answerText, answerSearchText, answerImage, isRight, order, true));
             }
             questions.add(new Question(questionText, questionSearchText, questionImage, answers, true));
         }
@@ -70,14 +70,30 @@ public class Util {
         }
     };
 
-    public static String generateQuestionHtml(Question question) {
+    public static String generateQuestionHtml(Question question, int order) {
         Context context = new Context();
         context.setVariable("question", question);
+        context.setVariable("order", order);
         try {
             return questionViewTemplateEngineInitializer.get().process("question-view", context);
         } catch (ConcurrentException e) {
             e.printStackTrace();
             return "";
         }
+    }
+
+    // https://learn.microsoft.com/en-us/office/troubleshoot/excel/convert-excel-column-numbers
+    public static String getExcelColumnName(int index) {
+        if (index < 0) {
+            return "#VALUE!";
+        }
+        StringBuilder result = new StringBuilder();
+        index++;
+        while (index > 0) {
+            int remainder = (index - 1) % 26;
+            result.insert(0, (char) (remainder + 'A'));
+            index = (index - 1) / 26;
+        }
+        return result.toString();
     }
 }

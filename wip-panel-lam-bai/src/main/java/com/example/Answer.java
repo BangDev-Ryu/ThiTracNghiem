@@ -10,24 +10,27 @@ public class Answer {
     private String searchText;
     private Path image;
     private boolean isRight;
+    private int order;
     private boolean status;
     private String imageUri;
 
     public Answer() {}
 
-    public Answer(String text, String searchText, String image, boolean isRight, boolean status) {
+    public Answer(String text, String searchText, String image, boolean isRight, int order, boolean status) {
         this.text = text;
         this.searchText = searchText;
         setImage(image);
         this.isRight = isRight;
+        this.order = order;
         this.status = status;
     }
 
-    public Answer(String text, String searchText, Path image, boolean isRight, boolean status) {
+    public Answer(String text, String searchText, Path image, boolean isRight, int order, boolean status) {
         this.text = text;
         this.searchText = searchText;
         setImage(image);
         this.isRight = isRight;
+        this.order = order;
         this.status = status;
     }
 
@@ -86,7 +89,20 @@ public class Answer {
         this.status = status;
     }
 
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
     public String getImageUri() {
         return imageUri;
+    }
+
+    // lay ra chu cai ABC theo order (0:A, 1:B, ...)
+    public String getExcelColumnName() {
+        return Util.getExcelColumnName(order);
     }
 }

@@ -3,6 +3,7 @@ package com.example;
 import javax.swing.JFrame;
 
 public class MainFrame extends JFrame {
+
     public MainFrame() {
         super();
         setTitle("Main Frame");

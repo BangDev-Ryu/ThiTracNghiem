@@ -1,28 +1,49 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <title>Quiz Question</title>
-  </head>
-  <body>
-    <div>
-      <h2 th:text="${question.text}">Question Text</h2>
-      <div th:if="${question.image != null}">
-        <img th:src="@{${question.imageUri}}" alt="Question Image" />
-      </div>
-      <p
-        th:text="${question.isMultipleChoices() ? 'Multiple Choice' : 'Single Choice'}"
-      ></p>
-      <ul>
-        <li th:each="answer, iterStat : ${question.answers}">
-          <span
-            th:text="${question.getExcelColumnName(iterStat.index) + '. '}"
-          ></span>
-          <span th:text="${answer.text}">Answer Text</span>
-          <div th:if="${answer.image != null}">
-            <img th:src="@{${answer.imageUri}}" alt="Answer Image" />
-          </div>
-        </li>
-      </ul>
+
+<head>
+  <title>Quiz Question</title>
+  <style>
+    h1,
+    h2,
+    h3 {
+      display: inline-block;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    li img {
+      margin-top: .2em;
+      margin-bottom: .5em;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    <h1 th:text="${'Question ' + order + '. '}"># .</h1>
+    <h2 th:text="${question.text}">Question Text</h2>
+    <div th:if="${question.image != null}">
+      <img th:src="@{${question.imageUri}}" alt="Question Image" />
     </div>
-  </body>
+    <p th:text="${question.isMultipleChoices() ? 'Multiple Choice' : 'Single Choice'}"></p>
+    <ul>
+      <li th:each="answer : ${question.answers}">
+        <h3 th:text="${answer.getExcelColumnName() + '. '}"></h3>
+        <span th:text="${answer.text}">Answer Text</span>
+        <div th:if="${answer.image != null}">
+          <img th:src="@{${answer.imageUri}}" alt="Answer Image" />
+        </div>
+      </li>
+    </ul>
+  </div>
+</body>
+
 </html>
