@@ -54,6 +54,7 @@ public class MainGUI extends JFrame implements MouseListener {
         itemNames.add("Home:home.svg");
         itemNames.add("Đề thi:test.svg");
         itemNames.add("Câu hỏi:quiz.svg");
+        itemNames.add("Chủ đề:category.svg");
         itemNames.add("Tài khoản:group.svg");
         
         for (int i = 0; i < itemNames.size(); i++) {
@@ -84,6 +85,12 @@ public class MainGUI extends JFrame implements MouseListener {
                 content.add(new TestGUI(WIDTH - SIDEBARWIDTH, HEIGHT));
                 content.repaint();
                 content.validate();
+                break;
+            case "Câu hỏi":
+                break;
+            case "Chủ đề":
+                break;
+            case "Tài khoản":
                 break;
         }
     }
