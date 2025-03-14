@@ -1,6 +1,5 @@
 package DTO;
 
-import java.sql.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,12 +7,11 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TestDTO {
+public class QuestionDTO {
     private int id;
-    private String testCode;
-    private String name;
-    private int time;
-    private int limit;
-    private Timestamp date; 
+    private int topicId;
+    private String content;
+    private String picture;
+    private String level;
     private boolean status;
 }
