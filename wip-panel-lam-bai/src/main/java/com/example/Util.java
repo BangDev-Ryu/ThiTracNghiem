@@ -38,8 +38,10 @@ public class Util {
             String questionText = row.get(0);
             String questionSearchText = row.get(1);
             String questionImage = row.get(2);
+            int difficultyLevel = Integer.parseInt(row.get(3));
+            DifficultyEnum difficulty = DifficultyEnum.valueOfLevel(difficultyLevel);
             List<Answer> answers = new ArrayList<>();
-            for (int i = 3, order = 0; i < row.size(); i += 4, order++) {
+            for (int i = 4, order = 0; i < row.size(); i += 4, order++) {
                 if (i >= row.size() || row.get(i).isEmpty()) {
                     break;
                 }
@@ -49,7 +51,7 @@ public class Util {
                 boolean isRight = Boolean.parseBoolean(row.get(i + 3));
                 answers.add(new Answer(answerText, answerSearchText, answerImage, isRight, order, true));
             }
-            questions.add(new Question(questionText, questionSearchText, questionImage, answers, true));
+            questions.add(new Question(questionText, questionSearchText, questionImage, answers, true, difficulty));
         }
         return questions;
     }

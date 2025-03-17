@@ -13,25 +13,42 @@ public class Question {
     private String imageUri;
     private List<Answer> answers;
     private boolean status;
+    private DifficultyEnum difficulty;
 
     public Question() {}
 
-    public Question(String text, String searchText, Path image, List<Answer> answers, boolean status) {
+    public Question(
+        String text,
+        String searchText,
+        Path image,
+        List<Answer> answers,
+        boolean status,
+        DifficultyEnum difficulty
+    ) {
         this.text = text;
         this.searchText = searchText;
         this.image = image;
         this.imageUri = image != null ? image.toUri().toString() : null;
         this.answers = answers;
         this.status = status;
+        this.difficulty = difficulty;
     }
 
-    public Question(String text, String searchText, String imagePath, List<Answer> answers, boolean status) {
+    public Question(
+        String text,
+        String searchText,
+        String imagePath,
+        List<Answer> answers,
+        boolean status,
+        DifficultyEnum difficulty
+    ) {
         this.text = text;
         this.searchText = searchText;
         this.image = StringUtils.isBlank(imagePath) ? null : Paths.get(imagePath);
         this.imageUri = this.image != null ? this.image.toUri().toString() : null;
         this.answers = answers;
         this.status = status;
+        this.difficulty = difficulty;
     }
 
     public boolean isMultipleChoices() {
@@ -86,5 +103,13 @@ public class Question {
 
     public void setStatus(boolean status) {
         this.status = status;
+    }
+
+    public DifficultyEnum getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(DifficultyEnum difficulty) {
+        this.difficulty = difficulty;
     }
 }

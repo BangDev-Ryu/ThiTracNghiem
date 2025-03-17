@@ -2,7 +2,7 @@ package com.example;
 
 import java.util.List;
 
-public class TheTest {
+public class Exam {
 
     private List<Question> questions;
 

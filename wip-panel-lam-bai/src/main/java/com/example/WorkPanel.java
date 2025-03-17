@@ -33,7 +33,7 @@ import javax.swing.ListSelectionModel;
 
 public class WorkPanel extends JPanel {
 
-    private TheTest theTest;
+    private Exam theTest;
     private List<QuestionInWork> questions;
     private QuestionInWork currentQuestion;
 
@@ -48,12 +48,12 @@ public class WorkPanel extends JPanel {
         add(workControlPanel = new WorkControlPanel());
 
         var qList = Util.readCsvToQuestions("./questions.csv", true);
-        var tTest = new TheTest();
+        var tTest = new Exam();
         tTest.setQuestions(qList);
         initializeTheTest(tTest);
     }
 
-    public synchronized void initializeTheTest(TheTest theTest) {
+    public synchronized void initializeTheTest(Exam theTest) {
         this.theTest = theTest;
         questions = IntStream.range(0, theTest.getQuestions().size())
             .mapToObj(index -> new QuestionInWork(theTest.getQuestions().get(index), index))
@@ -99,7 +99,7 @@ public class WorkPanel extends JPanel {
         workInfoPanel.updateQuestion(question);
     }
 
-    public TheTest getTheTest() {
+    public Exam getTheTest() {
         return theTest;
     }
 }
