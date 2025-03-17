@@ -87,6 +87,10 @@ public class MainGUI extends JFrame implements MouseListener {
                 content.validate();
                 break;
             case "Câu hỏi":
+                content.removeAll();
+                content.add(new QuestionGUI(WIDTH - SIDEBARWIDTH, HEIGHT));
+                content.repaint();
+                content.validate();
                 break;
             case "Chủ đề":
                 break;

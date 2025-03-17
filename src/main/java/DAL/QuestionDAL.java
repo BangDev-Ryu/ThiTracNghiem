@@ -28,6 +28,25 @@ public class QuestionDAL {
         return questionDTOs;
     }
     
+    public QuestionDTO getQuestionById(int id) {
+        String query = "SELECT * FROM question WHERE id = ?";
+        try (ResultSet rs = ConnectDB.executeQuery(query, id)) {
+            if (rs.next()) {
+                return new QuestionDTO(
+                    rs.getInt("id"),
+                    rs.getInt("topic_id"),
+                    rs.getString("content"),
+                    rs.getString("picture"),
+                    rs.getString("level"),
+                    rs.getBoolean("status")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
     public boolean addQuestion(QuestionDTO q) {
         String query = "INSERT INTO question (topic_id, content, picture, level, status) "
                         + "VALUES (?, ?, ?, ?, ?)";

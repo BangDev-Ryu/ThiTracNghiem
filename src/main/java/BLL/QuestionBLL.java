@@ -10,6 +10,10 @@ public class QuestionBLL {
     public ArrayList<QuestionDTO> getAllQuestions() {
         return questionDAL.getAllQuestions();
     }
+    
+    public QuestionDTO getQuestionById(int id) {
+        return questionDAL.getQuestionById(id);
+    }
 
     public boolean addQuestion(QuestionDTO q) {
         return questionDAL.addQuestion(q);
