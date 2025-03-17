@@ -18,7 +18,7 @@ public class TestGUI extends JPanel {
     private JTable table;
     private DefaultTableModel tableModel;
     
-    private JPanel pnTable;
+    private JPanel pnTable, pnDetail, pnFilter;
     
     public TestGUI(int width, int height) {
         this.width = width;
@@ -29,9 +29,14 @@ public class TestGUI extends JPanel {
     public void init() {
         this.setSize(this.width, this.height);
         
+        this.pnDetail = initPanelDetail();
+        this.pnFilter = initPanelFilter();
         this.pnTable = initPanelTable();
         
         this.setLayout(new BorderLayout());
+        
+        this.add(pnDetail, BorderLayout.NORTH);
+        this.add(pnFilter, BorderLayout.CENTER);
         this.add(pnTable, BorderLayout.SOUTH);
     }
     
@@ -48,6 +53,21 @@ public class TestGUI extends JPanel {
                 t.getDate(),
             });
         }
+    }
+    
+    public JPanel initPanelDetail() {
+        JPanel pn = new JPanel();
+        pn.setPreferredSize(new Dimension(this.width, 300));
+
+        
+        return pn;
+    }
+    
+    public JPanel initPanelFilter() {
+        JPanel pn = new JPanel();
+        pn.setPreferredSize(new Dimension(this.width, 120));
+        
+        return pn;
     }
     
     public JPanel initPanelTable() {
