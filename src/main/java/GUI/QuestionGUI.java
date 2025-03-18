@@ -2,13 +2,17 @@ package GUI;
 
 import BLL.AnswerBLL;
 import BLL.QuestionBLL;
+import DTO.AnswerDTO;
 import DTO.QuestionDTO;
+import GUI.component.AnswerDialog;
 import GUI.component.QuestionDialog;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -100,6 +104,10 @@ public class QuestionGUI extends JPanel {
         pn.add(pn_table, BorderLayout.CENTER);
         pn.add(pn_btn, BorderLayout.EAST);
         
+        this.btnAddAns.addActionListener(e -> addAnswer());
+        this.btnUpdateAns.addActionListener(e -> updateAnswer());
+        this.btnDelAns.addActionListener(e -> deleteAnswer());
+        
         return pn;
     }
     
@@ -181,6 +189,14 @@ public class QuestionGUI extends JPanel {
         
         loadQuestions();
         
+        tableQuestion.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                int selectedRow = tableQuestion.getSelectedRow();
+                int questionId = (int) tableModelQuestion.getValueAt(selectedRow, 0);
+                loadAnswers(questionId);
+            }
+        });
+        
         return pn;
     }
     
@@ -232,5 +248,81 @@ public class QuestionGUI extends JPanel {
             JOptionPane.showMessageDialog(null, "Vui lòng chọn câu hỏi cần xóa");
             return;
         }
+    }
+    
+    public void loadAnswers(int id) {
+        this.tableModelAnswer.setRowCount(0);
+        ArrayList<AnswerDTO> answers = answerBLL.getAnswersByQuestionId(id);
+        for (AnswerDTO a : answers) {
+            tableModelAnswer.addRow(new Object[] {
+                a.getId(),
+                a.getContent(),
+                a.isRight(),
+                a.getPicture()
+            });
+        }
+    }
+    
+    public void addAnswer() {
+        int selectedRow = tableQuestion.getSelectedRow();
+        if (selectedRow != -1) {
+            int questionId = (int) tableModelQuestion.getValueAt(selectedRow, 0);
+            new AnswerDialog("Thêm câu trả lời", -1, questionId);
+            loadAnswers(questionId);
+        }
+        else {
+            JOptionPane.showMessageDialog(null, "Vui lòng chọn câu hỏi cần thêm câu trả lời");
+            return;
+        }
+    }
+    
+    public void updateAnswer() {
+        int selectedRow = tableQuestion.getSelectedRow();
+        if (selectedRow != -1) {
+            int questionId = (int) tableModelQuestion.getValueAt(selectedRow, 0);
+            int answerRow = tableAnswer.getSelectedRow();
+            
+            if (answerRow != -1) {
+                int id = (int) tableModelAnswer.getValueAt(answerRow, 0);
+                new AnswerDialog("Sửa câu trả lời", id, questionId);
+                loadAnswers(questionId);
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "Vui lòng chọn câu trả lời cần sửa");
+                return;
+            }
+        }
+        else {
+            JOptionPane.showMessageDialog(null, "Vui lòng chọn câu hỏi cần sửa câu trả lời");
+            return;
+        }
+    }
+    
+    public void deleteAnswer() {
+        int selectedRow = tableQuestion.getSelectedRow();
+        if (selectedRow != -1) {
+            int questionId = (int) tableModelQuestion.getValueAt(selectedRow, 0);
+            
+            int answerRow = tableAnswer.getSelectedRow();
+            if (answerRow != -1) {
+                int id = (int) tableModelAnswer.getValueAt(selectedRow, 0);
+                int confirm = JOptionPane.showConfirmDialog(null, "Xác nhận xóa", "Alert", JOptionPane.YES_NO_OPTION);
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    answerBLL.deleteAnswer(id);
+                    loadAnswers(questionId);
+                }
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "Vui lòng chọn câu trả lời cần xóa");
+                return;
+            }
+        }
+        else {
+            JOptionPane.showMessageDialog(null, "Vui lòng chọn câu hỏi cần xóa câu trả lời");
+            return;
+        }
+        
+        
     }
 }

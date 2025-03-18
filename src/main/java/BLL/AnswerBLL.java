@@ -10,6 +10,14 @@ public class AnswerBLL {
     public ArrayList<AnswerDTO> getAllAnswers() {
         return answerDAL.getAllAnswers();
     }
+    
+    public AnswerDTO getAnswerById(int id) {
+        return answerDAL.getAnswerById(id);
+    }
+    
+    public ArrayList<AnswerDTO> getAnswersByQuestionId(int id) {
+        return answerDAL.getAnswersByQuestionId(id);
+    }
 
     public boolean addAnswer(AnswerDTO a) {
         return answerDAL.addAnswer(a);

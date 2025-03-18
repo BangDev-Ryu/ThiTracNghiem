@@ -28,6 +28,46 @@ public class AnswerDAL {
         return answerDTOs;
     }
     
+    public AnswerDTO getAnswerById(int id) {
+        String query = "SELECT * FROM answer WHERE id = ?";
+        try (ResultSet rs = ConnectDB.executeQuery(query, id)) {
+            if (rs.next()) {
+                return new AnswerDTO(
+                    rs.getInt("id"),
+                    rs.getInt("question_id"),
+                    rs.getString("content"),
+                    rs.getString("picture"),
+                    rs.getBoolean("is_right"),
+                    rs.getBoolean("status")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public ArrayList<AnswerDTO> getAnswersByQuestionId(int id) {
+        ArrayList<AnswerDTO> answerDTOs = new ArrayList<>();
+        String query = "SELECT * FROM answer WHERE question_id = ?";
+        
+        try (ResultSet rs = ConnectDB.executeQuery(query, id)) {
+            while (rs.next()) {
+                answerDTOs.add(new AnswerDTO(
+                    rs.getInt("id"),
+                    rs.getInt("question_id"),
+                    rs.getString("content"),
+                    rs.getString("picture"),
+                    rs.getBoolean("is_right"),
+                    rs.getBoolean("status")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return answerDTOs;
+    }
+    
     public boolean addAnswer(AnswerDTO a) {
         String query = "INSERT INTO answer (question_id, content, picture, is_right, status) "
                         + "VALUES (?, ?, ?, ?, ?)";
