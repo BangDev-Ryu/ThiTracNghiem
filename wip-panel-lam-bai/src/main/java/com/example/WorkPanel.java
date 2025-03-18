@@ -46,19 +46,13 @@ public class WorkPanel extends JPanel {
         add(workInfoPanel = new WorkInfoPanel());
         add(workAreaPanel = new WorkAreaPanel());
         add(workControlPanel = new WorkControlPanel());
-
-        var qList = Util.readCsvToQuestions("./questions.csv", true);
-        var tTest = new Exam();
-        tTest.setQuestions(qList);
-        initializeTheTest(tTest);
     }
 
-    public synchronized void initializeTheTest(Exam theTest) {
-        this.theTest = theTest;
-        questions = IntStream.range(0, theTest.getQuestions().size())
-            .mapToObj(index -> new QuestionInWork(theTest.getQuestions().get(index), index))
-            .collect(Collectors.toList());
-        // TODO: can phai xac dinh duoc thu tu cau hoi
+    public synchronized void setExam(Exam exam) {
+        this.theTest = exam;
+        questions = IntStream.range(0, exam.getQuestions().size())
+            .mapToObj(index -> new QuestionInWork(exam.getQuestions().get(index), index))
+            .toList();
         workInfoPanel.setQuestions(questions);
         if (questions.size() > 0) {
             currentQuestion = questions.get(0);
@@ -184,9 +178,7 @@ class QuestionNavigationPanel extends JPanel {
             navigationModel.clear();
         }
         isNavigationChangeByUser.set(false);
-        navigationModel.addAll(
-            questions.stream().sorted(Comparator.comparingInt(QuestionInWork::getOrder)).collect(Collectors.toList())
-        );
+        navigationModel.addAll(questions.stream().sorted(Comparator.comparingInt(QuestionInWork::getOrder)).toList());
         navigationComponent.setSelectedIndex(0);
         isNavigationChangeByUser.set(true);
     }
