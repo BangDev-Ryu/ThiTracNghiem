@@ -1,12 +1,10 @@
 package GUI.component;
 
-import BLL.QuestionBLL;
-import DTO.QuestionDTO;
+import BLL.AnswerBLL;
+import DTO.AnswerDTO;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -14,23 +12,23 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
-public class QuestionDialog extends JDialog {
-    private QuestionBLL questionBLL = new QuestionBLL();
+public class AnswerDialog extends JDialog {
+    private AnswerBLL answerBLL = new AnswerBLL();
     private final int WIDTH = 500, HEIGHT = 700;
     
     private String name;
-    private int id;
+    private int id, questionId;
     
     private JPanel pnForm, pnButton;
-    private JComboBox cbTopic, cbLevel;
+    private JComboBox cbIsRight;
     private JTextArea taContent;
     private JButton btnSubmit, btnCancel;
     
-    public QuestionDialog(String name, int id) {
+    public AnswerDialog(String name, int id, int questionId) {
         this.name = name;
         this.id = id;
+        this.questionId = questionId;
         
         init();
     }
@@ -57,21 +55,9 @@ public class QuestionDialog extends JDialog {
 
         Dimension size_panel = new Dimension(400, 100);
         
-        // topic layout
-        JPanel pn_topic = new JPanel(new FlowLayout(0, 15, 70));
-        pn_topic.setPreferredSize(size_panel);
-//        pn_topic.setBorder(BorderFactory.createLineBorder(Color.black, 1));
-        
-        String[] topicItems = {"1", "2", "3"};
-        this.cbTopic = new JComboBox(topicItems);
-        
-        pn_topic.add(new JLabel("Chủ đề: "));
-        pn_topic.add(cbTopic);
-        
         // content layout
         JPanel pn_content = new JPanel(new FlowLayout(0, 15, 10));
         pn_content.setPreferredSize(size_panel);
-//        pn_content.setBorder(BorderFactory.createLineBorder(Color.black, 1));
         
         this.taContent = new JTextArea("");
         this.taContent.setPreferredSize(new Dimension(300, 80));
@@ -79,31 +65,33 @@ public class QuestionDialog extends JDialog {
         pn_content.add(new JLabel("Nội dung: "));
         pn_content.add(taContent);
         
-        // level layout
-        JPanel pn_level = new JPanel(new FlowLayout(0, 15, 10));
-        pn_level.setPreferredSize(size_panel);
-//        pn_level.setBorder(BorderFactory.createLineBorder(Color.black, 1));
+        // is right layout
+        JPanel pn_is_right = new JPanel(new FlowLayout(0, 15, 10));
+        pn_is_right.setPreferredSize(size_panel);
         
-        String[] levelItems = {"Easy", "Normal", "Hard"};
-        this.cbLevel = new JComboBox(levelItems);
+        String[] levelItems = {"Đúng", "Sai"};
+        this.cbIsRight = new JComboBox(levelItems);
         
-        pn_level.add(new JLabel("Cấp độ: "));
-        pn_level.add(cbLevel);
+        pn_is_right.add(new JLabel("Đáp án: "));
+        pn_is_right.add(cbIsRight);
         
         if (this.id != -1) { // Sửa
-            QuestionDTO question = questionBLL.getQuestionById(this.id);
-            this.cbTopic.setSelectedItem(question.getTopicId());
-            this.cbLevel.setSelectedItem(question.getLevel());
-            this.taContent.setText(question.getContent());
+            AnswerDTO answer = answerBLL.getAnswerById(id);
+            this.taContent.setText(answer.getContent());
+            if (answer.isRight()) {
+                this.cbIsRight.setSelectedItem("Đúng");
+            }
+            else {
+                this.cbIsRight.setSelectedItem("Sai");
+            }
         }
         else { // Thêm
             
         }
         
         pn.setLayout(new FlowLayout(1));
-        pn.add(pn_topic);
         pn.add(pn_content);
-        pn.add(pn_level);
+        pn.add(pn_is_right);
         
         return pn;
     }
@@ -125,18 +113,21 @@ public class QuestionDialog extends JDialog {
                 return;
             }
             
-            int id_topic = Integer.parseInt(cbTopic.getSelectedItem().toString());
             String content = taContent.getText();
             String picture = "";
-            String level = (String)cbLevel.getSelectedItem();
+            Boolean isRight = true;
             
-            QuestionDTO questionDTO = new QuestionDTO(id, id_topic, content, picture, level, true);
+            if (cbIsRight.getSelectedItem().toString().equals("Sai")) {
+                isRight = false;
+            }
+            
+            AnswerDTO answer = new AnswerDTO(id, questionId, content, picture, isRight, true);
             
             if (id != -1) { // sửa
-                questionBLL.updateQuestion(questionDTO);
+                answerBLL.updateAnswer(answer);
             }
             else { // thêm
-                questionBLL.addQuestion(questionDTO);
+                answerBLL.addAnswer(answer);
             }
             dispose();
         });
@@ -147,5 +138,4 @@ public class QuestionDialog extends JDialog {
         
         return pn;
     }
-    
 }
