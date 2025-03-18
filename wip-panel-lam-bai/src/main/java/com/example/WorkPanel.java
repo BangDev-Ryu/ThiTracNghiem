@@ -32,6 +32,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class WorkPanel extends JPanel {
 
@@ -94,6 +96,11 @@ public class WorkPanel extends JPanel {
         workInfoPanel.addClearAllAnswersEventListener(() -> {
             questions.stream().forEach(QuestionInWork::deselectAnswer);
             allAnswersChanged();
+        });
+        workInfoPanel.addFinishExamEventListener(() -> {
+            // TODO: ket noi voi bai thi, de thi, nguoi dung, test_struct, v.v roi luu ket qua vao db
+            JSONArray resultArray = new JSONArray(questions.stream().map(QuestionInWork::getResultJsonObject).toList());
+            System.out.println(resultArray.toString(2));
         });
     }
 
@@ -635,6 +642,17 @@ class AnswerInWork {
     public void setSelected(boolean isSelected) {
         this.isSelected = isSelected;
     }
+
+    public JSONObject getResultJsonObject() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("text", answer.getText());
+        jsonObject.put("searchText", answer.getSearchText());
+        jsonObject.put("image", answer.getImageUri());
+        jsonObject.put("isRight", answer.isRight());
+        jsonObject.put("order", answer.getOrder());
+        jsonObject.put("isSelected", isSelected);
+        return jsonObject;
+    }
 }
 
 class QuestionInWork {
@@ -708,5 +726,16 @@ class QuestionInWork {
 
     public void deselectAnswer() {
         answers.forEach(answer -> answer.setSelected(false));
+    }
+
+    public JSONObject getResultJsonObject() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("text", question.getText());
+        jsonObject.put("searchText", question.getSearchText());
+        jsonObject.put("image", question.getImageUri());
+        jsonObject.put("difficulty", question.getDifficulty().getLevel());
+        jsonObject.put("order", order);
+        jsonObject.put("answers", new JSONArray(this.answers.stream().map(AnswerInWork::getResultJsonObject).toList()));
+        return jsonObject;
     }
 }
