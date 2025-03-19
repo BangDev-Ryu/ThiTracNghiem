@@ -18,13 +18,36 @@ public class UserDAL {
                     rs.getString("email"),
                     rs.getString("password"),
                     rs.getString("fullname"),
-                    rs.getBoolean("is_admin")
+                    rs.getBoolean("id_admin")
                 ));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return userDTOs;
+    }
+    
+    public int getAllUsersNotIsAdmin() {
+        int total = 0;
+        ArrayList<UserDTO> userDTOs = new ArrayList<>();
+        String query = "SELECT * FROM user";
+        
+        try (ResultSet rs = ConnectDB.executeQuery(query)) {
+            while (rs.next()) {
+                userDTOs.add(new UserDTO(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getString("email"),
+                    rs.getString("password"),
+                    rs.getString("fullname"),
+                    rs.getBoolean("id_admin")
+                ));
+                total ++;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return total;
     }
     
     public UserDTO getUserById(int id) {

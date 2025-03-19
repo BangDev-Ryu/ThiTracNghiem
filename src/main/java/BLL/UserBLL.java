@@ -11,6 +11,10 @@ public class UserBLL {
         return userDAL.getAllUsers();
     }
     
+    public int getAllUsersNotIsAdmin() {
+        return userDAL.getAllUsersNotIsAdmin();
+    }
+    
     public UserDTO getUserById(int id) {
         return userDAL.getUserById(id);
     }
