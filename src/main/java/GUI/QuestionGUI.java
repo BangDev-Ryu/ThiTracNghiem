@@ -36,7 +36,7 @@ public class QuestionGUI extends JPanel {
     private JTextField tfSearch;
     private JComboBox cbTopic, cbLevel;
     private JButton btnSearch;
-    private JButton btnAddQuest, btnUpdateQuest, btnDelQUest;
+    private JButton btnAddQuest, btnUpdateQuest, btnDelQuest;
     private JButton btnAddAns, btnUpdateAns, btnDelAns;
     
     public QuestionGUI(int width, int height) {
@@ -148,23 +148,23 @@ public class QuestionGUI extends JPanel {
         
         this.btnAddQuest = new JButton("Thêm câu hỏi");
         this.btnUpdateQuest = new JButton("Sửa câu hỏi");
-        this.btnDelQUest = new JButton("Xóa câu hỏi");
+        this.btnDelQuest = new JButton("Xóa câu hỏi");
         
         this.btnAddQuest.setPreferredSize(btn_size);
         this.btnUpdateQuest.setPreferredSize(btn_size);
-        this.btnDelQUest.setPreferredSize(btn_size);
+        this.btnDelQuest.setPreferredSize(btn_size);
         
         this.btnAddQuest.setFont(btn_font);
         this.btnUpdateQuest.setFont(btn_font);
-        this.btnDelQUest.setFont(btn_font);
+        this.btnDelQuest.setFont(btn_font);
         
         pn_btn.add(btnAddQuest);
         pn_btn.add(btnUpdateQuest);
-        pn_btn.add(btnDelQUest);
+        pn_btn.add(btnDelQuest);
         
         this.btnAddQuest.addActionListener(e -> addQuestion());
         this.btnUpdateQuest.addActionListener(e -> updateQuestion());
-        this.btnDelQUest.addActionListener(e -> deleteQuestion());
+        this.btnDelQuest.addActionListener(e -> deleteQuestion());
         
         pn.add(pn_filter);
         pn.add(pn_btn);

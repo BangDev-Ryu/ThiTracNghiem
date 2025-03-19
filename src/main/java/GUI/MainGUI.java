@@ -95,6 +95,10 @@ public class MainGUI extends JFrame implements MouseListener {
             case "Chủ đề":
                 break;
             case "Tài khoản":
+                content.removeAll();
+                content.add(new UserGUI(WIDTH - SIDEBARWIDTH, HEIGHT));
+                content.repaint();
+                content.validate();
                 break;
         }
     }
