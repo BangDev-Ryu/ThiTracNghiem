@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <title>Exam Print</title>
+  <style>
+    h1,
+    h2,
+    h3 {
+      display: inline-block;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    li img {
+      margin-top: .2em;
+      margin-bottom: .5em;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    <p th:text="'Exam code: ' + ${examCode}"></p>
+    <div th:each="question, iterStat : ${exam.questions}">
+      <h1 th:text="${'Question ' + iterStat.index + '. '}"># .</h1>
+      <h2 th:text="${question.text}">Question Text</h2>
+      <div th:if="${question.image != null}">
+        <img th:src="@{${question.imageUri}}" alt="Question Image" />
+      </div>
+      <p th:text="${question.isMultipleChoices() ? 'Multiple Choice' : 'Single Choice'}"></p>
+      <p th:text="${'Difficulty: ' + question.getDifficulty().name()}"></p>
+      <ul>
+        <li th:each="answer : ${question.answers}">
+          <h3 th:text="${answer.getExcelColumnName() + '. '}"></h3>
+          <span th:text="${answer.text}">Answer Text</span>
+          <div th:if="${answer.image != null}">
+            <img th:src="@{${answer.imageUri}}" alt="Answer Image" />
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</body>
+
+</html>

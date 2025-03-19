@@ -26,6 +26,8 @@ public class MainFrame extends JFrame {
         Exam exam = exams.get(0); // Use the first generated exam
         workFrame.setExam(exam);
 
+        // System.out.println(Util.generateExamHtml(exam, "test"));
+
         add(workFrame);
     }
 }

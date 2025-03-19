@@ -140,6 +140,15 @@ class WorkInfoPanel extends JPanel {
         add(new JLabel("Panel WorkInfoPanel"));
         add(questionNavigationPanel = new QuestionNavigationPanel());
         add(examControlPanel = new ExamControlPanel());
+
+        JPanel timePanel = new JPanel();
+        timePanel.setLayout(new BoxLayout(timePanel, BoxLayout.Y_AXIS));
+        JLabel timeRemainingLabel = new JLabel("Time remaining:");
+        JLabel timeValueLabel = new JLabel("15:00");
+        timeValueLabel.setFont(timeValueLabel.getFont().deriveFont(20f)); // Set larger font size
+        timePanel.add(timeRemainingLabel);
+        timePanel.add(timeValueLabel);
+        add(timePanel);
     }
 
     public synchronized void setQuestions(List<QuestionInWork> questions) {

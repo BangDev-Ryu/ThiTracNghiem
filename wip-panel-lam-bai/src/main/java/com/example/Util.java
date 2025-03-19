@@ -85,6 +85,18 @@ public class Util {
         }
     }
 
+    public static String generateExamHtml(Exam exam, String examCode) {
+        Context context = new Context();
+        context.setVariable("exam", exam);
+        context.setVariable("examCode", examCode);
+        try {
+            return questionViewTemplateEngineInitializer.get().process("exam-print", context);
+        } catch (ConcurrentException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
     // https://learn.microsoft.com/en-us/office/troubleshoot/excel/convert-excel-column-numbers
     public static String getExcelColumnName(int index) {
         if (index < 0) {

@@ -56,7 +56,6 @@ public class Exam {
         return new Exam(selectedQuestions, 0);
     }
 
-    // tao 10 exam dau tien theo yeu cau de bai
     public static List<Exam> generateExams(
         QuestionListByTopic questionListByTopic,
         HashMap<DifficultyEnum, Integer> questionCountPerLevel,
@@ -72,6 +71,7 @@ public class Exam {
             .toList();
     }
 
+    // tao 10 exam dau tien theo yeu cau de bai
     public static List<Exam> generateDefaultExams(
         QuestionListByTopic questionListByTopic,
         HashMap<DifficultyEnum, Integer> questionCountPerLevel
