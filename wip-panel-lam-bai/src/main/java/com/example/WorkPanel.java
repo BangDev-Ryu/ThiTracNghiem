@@ -6,12 +6,14 @@ import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javafx.application.Platform;
@@ -30,10 +32,12 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class WorkPanel extends JPanel {
 
-    private TheTest theTest;
+    private Exam theTest;
     private List<QuestionInWork> questions;
     private QuestionInWork currentQuestion;
 
@@ -46,19 +50,13 @@ public class WorkPanel extends JPanel {
         add(workInfoPanel = new WorkInfoPanel());
         add(workAreaPanel = new WorkAreaPanel());
         add(workControlPanel = new WorkControlPanel());
-
-        var qList = Util.readCsvToQuestions("./questions.csv", true);
-        var tTest = new TheTest();
-        tTest.setQuestions(qList);
-        initializeTheTest(tTest);
     }
 
-    public synchronized void initializeTheTest(TheTest theTest) {
-        this.theTest = theTest;
-        questions = IntStream.range(0, theTest.getQuestions().size())
-            .mapToObj(index -> new QuestionInWork(theTest.getQuestions().get(index), index))
-            .collect(Collectors.toList());
-        // TODO: can phai xac dinh duoc thu tu cau hoi
+    public synchronized void setExam(Exam exam) {
+        this.theTest = exam;
+        questions = IntStream.range(0, exam.getQuestions().size())
+            .mapToObj(index -> new QuestionInWork(exam.getQuestions().get(index), index))
+            .toList();
         workInfoPanel.setQuestions(questions);
         if (questions.size() > 0) {
             currentQuestion = questions.get(0);
@@ -84,6 +82,26 @@ public class WorkPanel extends JPanel {
                 }
             }
         });
+        workInfoPanel.addRandomizeAllEventListener(() -> {
+            questions.stream().forEach(QuestionInWork::randomizeSelectedAnswers);
+            allAnswersChanged();
+        });
+        workInfoPanel.addRandomizeAllUnansweredEventListener(() -> {
+            questions
+                .stream()
+                .filter(Predicate.not(QuestionInWork::isAnyAnswerSelected))
+                .forEach(QuestionInWork::randomizeSelectedAnswers);
+            allAnswersChanged();
+        });
+        workInfoPanel.addClearAllAnswersEventListener(() -> {
+            questions.stream().forEach(QuestionInWork::deselectAnswer);
+            allAnswersChanged();
+        });
+        workInfoPanel.addFinishExamEventListener(() -> {
+            // TODO: ket noi voi bai thi, de thi, nguoi dung, test_struct, v.v roi luu ket qua vao db
+            JSONArray resultArray = new JSONArray(questions.stream().map(QuestionInWork::getResultJsonObject).toList());
+            System.out.println(resultArray.toString(2));
+        });
     }
 
     // chuyen sang cau hoi n, co the dc goi boi navigation hoac nut next
@@ -95,11 +113,19 @@ public class WorkPanel extends JPanel {
     }
 
     // nguoi dung chon cau tra loi khac
+    // answers panel da tu update nen khong can goi update cua no
     public void answerChanged(QuestionInWork question) {
         workInfoPanel.updateQuestion(question);
     }
 
-    public TheTest getTheTest() {
+    // nguoi dung chon chuc nang thay doi cau tra loi cua toan bo cac cau hoi
+    // khi nay thi can update answers panel
+    public void allAnswersChanged() {
+        workControlPanel.setViewAnswersForQuestion(currentQuestion);
+        workInfoPanel.updateAllQuestions();
+    }
+
+    public Exam getTheTest() {
         return theTest;
     }
 }
@@ -107,11 +133,13 @@ public class WorkPanel extends JPanel {
 class WorkInfoPanel extends JPanel {
 
     private QuestionNavigationPanel questionNavigationPanel;
+    private ExamControlPanel examControlPanel;
 
     public WorkInfoPanel() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(new JLabel("Panel WorkInfoPanel"));
         add(questionNavigationPanel = new QuestionNavigationPanel());
+        add(examControlPanel = new ExamControlPanel());
     }
 
     public synchronized void setQuestions(List<QuestionInWork> questions) {
@@ -128,6 +156,42 @@ class WorkInfoPanel extends JPanel {
 
     public void updateQuestion(QuestionInWork question) {
         questionNavigationPanel.updateQuestion(question);
+    }
+
+    public void updateAllQuestions() {
+        questionNavigationPanel.updateAllQuestions();
+    }
+
+    public void addRandomizeAllEventListener(Runnable listener) {
+        examControlPanel.addRandomizeAllEventListener(listener);
+    }
+
+    public void removeRandomizeAllEventListener(Runnable listener) {
+        examControlPanel.removeRandomizeAllEventListener(listener);
+    }
+
+    public void addFinishExamEventListener(Runnable listener) {
+        examControlPanel.addFinishExamEventListener(listener);
+    }
+
+    public void removeFinishExamEventListener(Runnable listener) {
+        examControlPanel.removeFinishExamEventListener(listener);
+    }
+
+    public void addRandomizeAllUnansweredEventListener(Runnable listener) {
+        examControlPanel.addRandomizeAllUnansweredEventListener(listener);
+    }
+
+    public void removeRandomizeAllUnansweredEventListener(Runnable listener) {
+        examControlPanel.removeRandomizeAllUnansweredEventListener(listener);
+    }
+
+    public void addClearAllAnswersEventListener(Runnable listener) {
+        examControlPanel.addClearAllAnswersEventListener(listener);
+    }
+
+    public void removeClearAllAnswersEventListener(Runnable listener) {
+        examControlPanel.removeClearAllAnswersEventListener(listener);
     }
 }
 
@@ -168,7 +232,7 @@ class QuestionNavigationPanel extends JPanel {
                         label.setBackground(list.getBackground());
                         label.setForeground(list.getForeground());
                     }
-                    label.setForeground(value.isAnyAnswerSelected() ? Color.GREEN : Color.RED);
+                    label.setForeground(value.isAnyAnswerSelected() ? Color.BLACK : Color.RED);
                     if (value.isFocused()) {
                         label.setFont(label.getFont().deriveFont(label.getFont().getStyle() | Font.BOLD));
                     }
@@ -184,9 +248,7 @@ class QuestionNavigationPanel extends JPanel {
             navigationModel.clear();
         }
         isNavigationChangeByUser.set(false);
-        navigationModel.addAll(
-            questions.stream().sorted(Comparator.comparingInt(QuestionInWork::getOrder)).collect(Collectors.toList())
-        );
+        navigationModel.addAll(questions.stream().sorted(Comparator.comparingInt(QuestionInWork::getOrder)).toList());
         navigationComponent.setSelectedIndex(0);
         isNavigationChangeByUser.set(true);
     }
@@ -197,6 +259,16 @@ class QuestionNavigationPanel extends JPanel {
         if (index != -1) {
             navigationModel.set(index, question);
         }
+    }
+
+    // goi khi dung randomize all de render lai toan bo list
+    public void updateAllQuestions() {
+        // luu tam list de add lai vao model de ban su kien thay doi toan bo item
+        List<QuestionInWork> temp = Collections.list(navigationModel.elements());
+        QuestionInWork currentQuestion = navigationComponent.getSelectedValue();
+        navigationModel.clear();
+        navigationModel.addAll(temp);
+        navigationComponent.setSelectedValue(currentQuestion, true);
     }
 
     public void addNavigationFocusChangeListener(Consumer<QuestionInWork> listener) {
@@ -220,6 +292,83 @@ class QuestionNavigationPanel extends JPanel {
     }
 }
 
+class ExamControlPanel extends JPanel {
+
+    private JButton randomizeAllButton;
+    private JButton randomizeAllUnansweredButton;
+    private JButton clearAllAnswersButton;
+    private JButton finishExamButton;
+
+    private Map<Runnable, ActionListener> randomizeAllEventListenerMap = new HashMap<>();
+    private Map<Runnable, ActionListener> randomizeAllUnansweredEventListenerMap = new HashMap<>();
+    private Map<Runnable, ActionListener> clearAllAnswersEventListenerMap = new HashMap<>();
+    private Map<Runnable, ActionListener> finishExamEventListenerMap = new HashMap<>();
+
+    public ExamControlPanel() {
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        randomizeAllButton = new JButton("Randomize All");
+        randomizeAllUnansweredButton = new JButton("Randomize All Unanswered");
+        clearAllAnswersButton = new JButton("Clear All Answers");
+        finishExamButton = new JButton("Finish Exam");
+        add(randomizeAllButton);
+        add(randomizeAllUnansweredButton);
+        add(clearAllAnswersButton);
+        add(finishExamButton);
+    }
+
+    public void addRandomizeAllEventListener(Runnable listener) {
+        ActionListener wrappedListener = _ -> listener.run();
+        randomizeAllEventListenerMap.put(listener, wrappedListener);
+        randomizeAllButton.addActionListener(wrappedListener);
+    }
+
+    public void removeRandomizeAllEventListener(Runnable listener) {
+        ActionListener wrappedListener = randomizeAllEventListenerMap.remove(listener);
+        if (wrappedListener != null) {
+            randomizeAllButton.removeActionListener(wrappedListener);
+        }
+    }
+
+    public void addRandomizeAllUnansweredEventListener(Runnable listener) {
+        ActionListener wrappedListener = _ -> listener.run();
+        randomizeAllUnansweredEventListenerMap.put(listener, wrappedListener);
+        randomizeAllUnansweredButton.addActionListener(wrappedListener);
+    }
+
+    public void removeRandomizeAllUnansweredEventListener(Runnable listener) {
+        ActionListener wrappedListener = randomizeAllUnansweredEventListenerMap.remove(listener);
+        if (wrappedListener != null) {
+            randomizeAllUnansweredButton.removeActionListener(wrappedListener);
+        }
+    }
+
+    public void addClearAllAnswersEventListener(Runnable listener) {
+        ActionListener wrappedListener = _ -> listener.run();
+        clearAllAnswersEventListenerMap.put(listener, wrappedListener);
+        clearAllAnswersButton.addActionListener(wrappedListener);
+    }
+
+    public void removeClearAllAnswersEventListener(Runnable listener) {
+        ActionListener wrappedListener = clearAllAnswersEventListenerMap.remove(listener);
+        if (wrappedListener != null) {
+            clearAllAnswersButton.removeActionListener(wrappedListener);
+        }
+    }
+
+    public void addFinishExamEventListener(Runnable listener) {
+        ActionListener wrappedListener = _ -> listener.run();
+        finishExamEventListenerMap.put(listener, wrappedListener);
+        finishExamButton.addActionListener(wrappedListener);
+    }
+
+    public void removeFinishExamEventListener(Runnable listener) {
+        ActionListener wrappedListener = finishExamEventListenerMap.remove(listener);
+        if (wrappedListener != null) {
+            finishExamButton.removeActionListener(wrappedListener);
+        }
+    }
+}
+
 class WorkAreaPanel extends JPanel {
 
     private QuestionViewPanel webViewPanel;
@@ -235,14 +384,14 @@ class WorkAreaPanel extends JPanel {
     }
 }
 
-class AnswersPanel extends JPanel {
+class AnswersChoicePanel extends JPanel {
 
     private QuestionInWork currentQuestion;
 
     private PropertyChangeSupport answersSelectedStateChange;
     private Map<Consumer<QuestionInWork>, PropertyChangeListener> answersSelectedStateChangeListenerMap;
 
-    public AnswersPanel() {
+    public AnswersChoicePanel() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         answersSelectedStateChange = new PropertyChangeSupport(this);
         answersSelectedStateChangeListenerMap = new HashMap<>();
@@ -307,36 +456,50 @@ class AnswersPanel extends JPanel {
         setQuestion(currentQuestion);
         answersSelectedStateChange.firePropertyChange("answersSelectedState", null, currentQuestion);
     }
+
+    public void randomizeSelection() {
+        if (currentQuestion == null) {
+            return;
+        }
+        currentQuestion.randomizeSelectedAnswers();
+        // Rerender the panel
+        setQuestion(currentQuestion);
+        answersSelectedStateChange.firePropertyChange("answersSelectedState", null, currentQuestion);
+    }
 }
 
-class QuestionControlPanel extends JPanel {
+class AnswersControlPanel extends JPanel {
 
     private JButton clearButton;
     private JButton nextButton;
     private JButton nextUnansweredButton;
+    private JButton randomizeButton;
 
     private Map<Runnable, ActionListener> nextEventListenerMap = new HashMap<>();
     private Map<Runnable, ActionListener> nextUnansweredEventListenerMap = new HashMap<>();
     private Map<Runnable, ActionListener> clearEventListenerMap = new HashMap<>();
+    private Map<Runnable, ActionListener> randomizeEventListenerMap = new HashMap<>();
 
-    public QuestionControlPanel() {
+    public AnswersControlPanel() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         clearButton = new JButton("Clear Answer");
         nextButton = new JButton("Next");
         nextUnansweredButton = new JButton("Next Unanswered");
+        randomizeButton = new JButton("Randomize");
         add(clearButton);
         add(nextButton);
         add(nextUnansweredButton);
+        add(randomizeButton);
     }
 
     public void addNextEventListener(Runnable listener) {
-        java.awt.event.ActionListener wrappedListener = _ -> listener.run();
+        ActionListener wrappedListener = _ -> listener.run();
         nextEventListenerMap.put(listener, wrappedListener);
         nextButton.addActionListener(wrappedListener);
     }
 
     public void removeNextEventListener(Runnable listener) {
-        java.awt.event.ActionListener wrappedListener = nextEventListenerMap.remove(listener);
+        ActionListener wrappedListener = nextEventListenerMap.remove(listener);
         if (wrappedListener != null) {
             nextButton.removeActionListener(wrappedListener);
         }
@@ -367,19 +530,33 @@ class QuestionControlPanel extends JPanel {
             clearButton.removeActionListener(wrappedListener);
         }
     }
+
+    public void addRandomizeEventListener(Runnable listener) {
+        ActionListener wrappedListener = _ -> listener.run();
+        randomizeEventListenerMap.put(listener, wrappedListener);
+        randomizeButton.addActionListener(wrappedListener);
+    }
+
+    public void removeRandomizeEventListener(Runnable listener) {
+        ActionListener wrappedListener = randomizeEventListenerMap.remove(listener);
+        if (wrappedListener != null) {
+            randomizeButton.removeActionListener(wrappedListener);
+        }
+    }
 }
 
 class WorkControlPanel extends JPanel {
 
-    private AnswersPanel answersPanel;
-    private QuestionControlPanel questionControlPanel;
+    private AnswersChoicePanel answersPanel;
+    private AnswersControlPanel answersControlPanel;
 
     public WorkControlPanel() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(new JLabel("Panel WorkControlPanel"));
-        add(answersPanel = new AnswersPanel());
-        add(questionControlPanel = new QuestionControlPanel());
-        questionControlPanel.addClearEventListener(answersPanel::clearSelection);
+        add(answersPanel = new AnswersChoicePanel());
+        add(answersControlPanel = new AnswersControlPanel());
+        answersControlPanel.addClearEventListener(answersPanel::clearSelection);
+        answersControlPanel.addRandomizeEventListener(answersPanel::randomizeSelection);
     }
 
     public void setViewAnswersForQuestion(QuestionInWork questionInWork) {
@@ -395,19 +572,27 @@ class WorkControlPanel extends JPanel {
     }
 
     public void addNextEventListener(Runnable listener) {
-        questionControlPanel.addNextEventListener(listener);
+        answersControlPanel.addNextEventListener(listener);
     }
 
     public void addNextUnansweredEventListener(Runnable listener) {
-        questionControlPanel.addNextUnansweredEventListener(listener);
+        answersControlPanel.addNextUnansweredEventListener(listener);
     }
 
     public void removeNextEventListener(Runnable listener) {
-        questionControlPanel.removeNextEventListener(listener);
+        answersControlPanel.removeNextEventListener(listener);
     }
 
     public void removeNextUnansweredEventListener(Runnable listener) {
-        questionControlPanel.removeNextUnansweredEventListener(listener);
+        answersControlPanel.removeNextUnansweredEventListener(listener);
+    }
+
+    public void addRandomizeEventListener(Runnable listener) {
+        answersControlPanel.addRandomizeEventListener(listener);
+    }
+
+    public void removeRandomizeEventListener(Runnable listener) {
+        answersControlPanel.removeRandomizeEventListener(listener);
     }
 }
 
@@ -456,6 +641,17 @@ class AnswerInWork {
 
     public void setSelected(boolean isSelected) {
         this.isSelected = isSelected;
+    }
+
+    public JSONObject getResultJsonObject() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("text", answer.getText());
+        jsonObject.put("searchText", answer.getSearchText());
+        jsonObject.put("image", answer.getImageUri());
+        jsonObject.put("isRight", answer.isRight());
+        jsonObject.put("order", answer.getOrder());
+        jsonObject.put("isSelected", isSelected);
+        return jsonObject;
     }
 }
 
@@ -512,5 +708,34 @@ class QuestionInWork {
 
     public int getOrder() {
         return order;
+    }
+
+    public void randomizeSelectedAnswers() {
+        List<AnswerInWork> answers = getAnswers();
+        answers.forEach(answer -> answer.setSelected(false));
+        if (getQuestion().isMultipleChoices()) {
+            // Randomly select a subset of answers
+            answers.stream().filter(_ -> Math.random() > 0.5).forEach(answer -> answer.setSelected(true));
+        } else {
+            // Randomly select one answer
+            int randomIndex = (int) (Math.random() * answers.size());
+            answers.get(randomIndex).setSelected(true);
+        }
+        return;
+    }
+
+    public void deselectAnswer() {
+        answers.forEach(answer -> answer.setSelected(false));
+    }
+
+    public JSONObject getResultJsonObject() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("text", question.getText());
+        jsonObject.put("searchText", question.getSearchText());
+        jsonObject.put("image", question.getImageUri());
+        jsonObject.put("difficulty", question.getDifficulty().getLevel());
+        jsonObject.put("order", order);
+        jsonObject.put("answers", new JSONArray(this.answers.stream().map(AnswerInWork::getResultJsonObject).toList()));
+        return jsonObject;
     }
 }

@@ -6,8 +6,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.concurrent.ConcurrentException;
 import org.apache.commons.lang3.concurrent.LazyInitializer;
 import org.thymeleaf.TemplateEngine;
@@ -24,7 +25,7 @@ public class Util {
             if (hasHeader && !allLines.isEmpty()) {
                 allLines.remove(0);
             }
-            lines = allLines.stream().map(Arrays::asList).collect(Collectors.toList());
+            lines = allLines.stream().map(Arrays::asList).toList();
         } catch (CsvException | IOException e) {
             e.printStackTrace();
         }
@@ -38,8 +39,10 @@ public class Util {
             String questionText = row.get(0);
             String questionSearchText = row.get(1);
             String questionImage = row.get(2);
+            int difficultyLevel = Integer.parseInt(row.get(3));
+            DifficultyEnum difficulty = DifficultyEnum.valueOfLevel(difficultyLevel);
             List<Answer> answers = new ArrayList<>();
-            for (int i = 3, order = 0; i < row.size(); i += 4, order++) {
+            for (int i = 4, order = 0; i < row.size(); i += 4, order++) {
                 if (i >= row.size() || row.get(i).isEmpty()) {
                     break;
                 }
@@ -49,7 +52,7 @@ public class Util {
                 boolean isRight = Boolean.parseBoolean(row.get(i + 3));
                 answers.add(new Answer(answerText, answerSearchText, answerImage, isRight, order, true));
             }
-            questions.add(new Question(questionText, questionSearchText, questionImage, answers, true));
+            questions.add(new Question(questionText, questionSearchText, questionImage, answers, true, difficulty));
         }
         return questions;
     }
@@ -95,5 +98,16 @@ public class Util {
             index = (index - 1) / 26;
         }
         return result.toString();
+    }
+
+    public static <T> List<T> cyclicRandomSampling(List<T> source, int count) {
+        return Stream.generate(() -> {
+            List<T> shuffled = new ArrayList<>(source);
+            Collections.shuffle(shuffled);
+            return shuffled;
+        })
+            .flatMap(List::stream)
+            .limit(count)
+            .toList();
     }
 }

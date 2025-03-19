@@ -34,6 +34,7 @@
       <img th:src="@{${question.imageUri}}" alt="Question Image" />
     </div>
     <p th:text="${question.isMultipleChoices() ? 'Multiple Choice' : 'Single Choice'}"></p>
+    <p th:text="${'Difficulty: ' + question.getDifficulty().name()}"></p>
     <ul>
       <li th:each="answer : ${question.answers}">
         <h3 th:text="${answer.getExcelColumnName() + '. '}"></h3>
