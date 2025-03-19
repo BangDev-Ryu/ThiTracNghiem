@@ -45,4 +45,23 @@ public class ConnectDB {
             pstmt.setObject(i + 1, params[i]);
         }
     }
+    
+    public static int executeQueryInt(String query, String... params) {
+        int result = 0;
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            for (int i = 0; i < params.length; i++) {
+                stmt.setString(i + 1, params[i]);
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                result = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 }

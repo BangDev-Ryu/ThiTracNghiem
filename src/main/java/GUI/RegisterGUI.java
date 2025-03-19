@@ -1,5 +1,7 @@
 package GUI;
 
+import DAL.UserDAL;
+import DTO.UserDTO;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -173,6 +175,11 @@ public class RegisterGUI extends JFrame {
 
         return hd;
     }
+    
+    public boolean isValidEmail(String email) {
+        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        return email.matches(emailRegex);
+    }
 
     public JPanel pnSouth() {
         JPanel pn_footer = new JPanel();
@@ -194,6 +201,49 @@ public class RegisterGUI extends JFrame {
         Font font_btn = new Font("Arial", Font.BOLD, 15);
         this.btn_register.setFont(font_btn);
 
+        btn_register.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = tf_name.getText().trim();
+                String email = tf_email.getText().trim();
+                String password = new String(tf_password.getPassword());
+                String confirmPassword = new String(tf_confirm_password.getPassword());
+                String fullname = tf_fullname.getText().trim();
+
+                if (name.isEmpty() || email.isEmpty() || password.isEmpty() || fullname.isEmpty()) {
+                    lb_error_noti.setText("Hãy điền hết vào các chỗ trống!");
+                    return;
+                }
+                
+                if (!isValidEmail(email)) {
+                    lb_error_noti.setText("Định dạng email không đúng!");
+                    return;
+                }
+
+                if (!password.equals(confirmPassword)) {
+                    lb_error_noti.setText("Mật khẩu không giống nhau!");
+                    return;
+                }
+                
+                UserDTO newUser = new UserDTO(0, name, email, password, fullname, false);
+
+                UserDAL userDAL = new UserDAL();
+                
+                if (userDAL.isEmailExists(email)) {
+                    lb_error_noti.setText("Email đã tồn tại! Hãy đăng ký email khác!");
+                    return;
+                }
+                
+                if (userDAL.addUser(newUser)) {
+                    JOptionPane.showMessageDialog(null, "Đăng ký thành công!");
+                    dispose();
+                    new LoginGUI(); 
+                } else {
+                    lb_error_noti.setText("Đăng ký thất bại. Hãy thử lại sau!");
+                }
+            }
+        });
+        
         pn_footer.add(this.btn_register);
         pn_footer.add(this.lb_error_noti);
 

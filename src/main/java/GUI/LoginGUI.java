@@ -1,5 +1,7 @@
 package GUI;
 
+import DAL.UserDAL;
+import DTO.UserDTO;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -208,13 +210,35 @@ public class LoginGUI extends JFrame implements MouseListener {
         this.btn_login.setFont(font_btn);
         this.btn_register.setFont(font_btn);
         
-        // Cập nhật sự kiện cho nút đăng ký
+        this.btn_login.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String email = tf_user.getText().trim(); 
+                String password = new String(tf_password.getPassword()).trim();
+
+                if (email.isEmpty() || password.isEmpty()) {
+                    lb_error_noti.setText("Vui lòng nhập cả email và mật khẩu!");
+                    return;
+                }
+
+                UserDAL userDAL = new UserDAL();
+                UserDTO user = userDAL.checkLogin(email, password);
+
+                if (user != null) {
+                    JOptionPane.showMessageDialog(null, "Đăng nhập thành công!");
+                    new MainGUI(); 
+                    dispose(); 
+                } else {
+                    lb_error_noti.setText("Email hoặc mật khẩu không đúng!");
+                }
+            }
+        });
+        
         this.btn_register.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Khi người dùng nhấn vào "Register", mở cửa sổ đăng ký
                 new RegisterGUI();
-                dispose(); // Đóng cửa sổ đăng nhập
+                dispose();
             }
         });
 
