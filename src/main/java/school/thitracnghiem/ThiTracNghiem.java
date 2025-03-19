@@ -1,5 +1,6 @@
 package school.thitracnghiem;
 
+import GUI.LoginGUI;
 import GUI.MainGUI;
 import com.formdev.flatlaf.FlatLightLaf;
 
@@ -9,7 +10,7 @@ public class ThiTracNghiem {
         FlatLightLaf.setup();
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MainGUI();
+                new LoginGUI();
             }
         });
     }

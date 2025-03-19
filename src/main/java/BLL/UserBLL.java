@@ -30,4 +30,12 @@ public class UserBLL {
     public ArrayList<UserDTO> searchUsers(String keyword) {
         return userDAL.searchUsers(keyword);
     }
+    
+    public UserDTO checkLogin(String email, String password) {
+        return userDAL.checkLogin(email, password);
+    }
+    
+    public boolean isEmailExists(String email) {
+        return userDAL.isEmailExists(email);
+    }
 }

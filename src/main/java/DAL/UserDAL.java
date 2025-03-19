@@ -84,4 +84,29 @@ public class UserDAL {
         String query = "DELETE FROM user WHERE id = ?";
         return ConnectDB.executeUpdate(query, id) > 0;
     }
+    
+    public UserDTO checkLogin(String email, String password) {
+        String query = "SELECT * FROM user WHERE email = ? AND password = ?";
+        try (ResultSet rs = ConnectDB.executeQuery(query, email, password)) {
+            if (rs.next()) {
+                return new UserDTO(
+                    rs.getInt("id"),
+                    rs.getString("name"),
+                    rs.getString("email"),
+                    rs.getString("password"),
+                    rs.getString("fullname"),
+                    rs.getBoolean("is_admin")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public boolean isEmailExists(String email) {
+        String query = "SELECT COUNT(*) FROM user WHERE email = ?";
+        int count = ConnectDB.executeQueryInt(query, email);
+        return count > 0;
+    }
 }
